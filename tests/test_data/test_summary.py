@@ -3,10 +3,10 @@ import os
 _REPO_DIR = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 )
-_TSV_SUMMARY = os.path.join(_REPO_DIR, "data/tsv_summary.tsv")
-_TSV_DIRECTORY = os.path.join(_REPO_DIR, "data/tsv")
+_TSV_SUMMARY = os.path.join(_REPO_DIR, "data/scrape/tsv_summary.tsv")
+_TSV_DIRECTORY = os.path.join(_REPO_DIR, "data/scrape/tsv")
 _PHONES_SUMMARY = os.path.join(_REPO_DIR, "data/phones/phones_summary.tsv")
-_PHONES_DIRECTORY = os.path.join(_REPO_DIR, "data/phones")
+_PHONES_DIRECTORY = os.path.join(_REPO_DIR, "data/phones/phones")
 
 
 def test_language_data_matches_summary():
@@ -60,8 +60,12 @@ def test_phones_data_matches_summary():
             with open(
                 f"{_PHONES_DIRECTORY}/{phones_list}", "r", encoding="utf-8"
             ) as tsv:
-                # Subtracting one for final blank line.
-                num_of_entries = sum(1 for line in tsv) - 1
+                # We exclude blank lines and comments.
+                num_of_entries = sum(
+                    1
+                    for line in tsv
+                    if line.strip() and not line.startswith("#")
+                )
             assert phones_list in name_to_count, (
                 f"{phones_list} in data/phones but not in "
                 "data/phones/phones_summary.tsv"

@@ -7,10 +7,11 @@ import os
 
 from typing import Any, Dict, List
 
-from data.src.codes import (
+from data.scrape.lib.codes import (
     LANGUAGES_PATH,
     PHONES_SUMMARY_PATH,
     PHONES_README_PATH,
+    PHONES_DIRECTORY,
 )
 
 
@@ -46,15 +47,20 @@ def main() -> None:
         languages = json.load(source)
     readme_list = []
     languages_summary_list = []
-    path = "../phones"
     modifiers = ["dialect"]
-    for file_path in os.listdir(path):
+    for file_path in os.listdir(PHONES_DIRECTORY):
         # Filters out README.md.
         if file_path.endswith(".md") or file_path.endswith("tsv"):
             continue
-        with open(f"{path}/{file_path}", "r", encoding="utf-8") as phone_list:
-            # We subtract one for the final newline.
-            num_of_entries = sum(1 for line in phone_list) - 1
+        with open(
+            f"{PHONES_DIRECTORY}/{file_path}", "r", encoding="utf-8"
+        ) as phone_list:
+            # We exclude blank lines and comments.
+            num_of_entries = sum(
+                1
+                for line in phone_list
+                if line.strip() and not line.startswith("#")
+            )
         iso639_code = file_path[: file_path.index("_")]
         transcription_level = file_path[
             file_path.index("phone") : file_path.index(".")
